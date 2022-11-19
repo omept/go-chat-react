@@ -1,8 +1,7 @@
 // api/index.js
-var socket = new WebSocket('ws://localhost:9010/v1/ws');
-
-let connect = (cb) => {
+let websocket = (cb) => {
   console.log("connecting")
+  var socket = new WebSocket('ws://localhost:9010/v1/ws');
 
   socket.onopen = () => {
     console.log("Successfully Connected");
@@ -20,11 +19,14 @@ let connect = (cb) => {
   socket.onerror = (error) => {
     console.log("Socket Error: ", error)
   }
+
+  let sendMsg = (msg) => {
+    console.log("sending msg: ", msg);
+    socket.send(msg);
+  };
+  return sendMsg
 };
 
-let sendMsg = (msg) => {
-  console.log("sending msg: ", msg);
-  socket.send(msg);
-};
 
-export { connect, sendMsg };
+
+export { websocket };
