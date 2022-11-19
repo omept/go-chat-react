@@ -27,6 +27,7 @@ let websocket = (cb) => {
   return sendMsg
 };
 
+const baseUrl = "http://localhost:9010"
 
 
-export { websocket };
+export { websocket, baseUrl };

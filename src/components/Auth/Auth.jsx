@@ -11,6 +11,7 @@ import {
   MDBSpinner,
 } from "mdb-react-ui-kit";
 import axios from "axios";
+import { baseUrl } from "../../api";
 
 class Auth extends Component {
   constructor(props) {
@@ -81,8 +82,7 @@ class Auth extends Component {
 
   register(username, email, password) {
     this.setState({ submitting: true, apiError: false, apiErrorMessage: "" });
-
-    const apiUrl = "http://localhost:9010/v1/api/auth/signup";
+    const apiUrl = `${baseUrl}/v1/api/auth/signup`;
     axios
       .post(
         apiUrl,
@@ -109,7 +109,7 @@ class Auth extends Component {
 
   login(email, password) {
     this.setState({ submitting: true, apiError: false, apiErrorMessage: "" });
-    const apiUrl = "http://localhost:9010/v1/api/auth/login";
+    const apiUrl = `${baseUrl}/v1/api/auth/login`;
     axios
       .post(
         apiUrl,

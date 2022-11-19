@@ -5,19 +5,17 @@ import ChatInput from './components/ChatInput/ChatInput';
 import './App.css';
 import { websocket } from './api';
 import Auth from './components/Auth/Auth';
+import Menu from './components/Menu/Menu';
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      chatHistory: [],
-      isAuthenticated: false,
-      jwtToken: false,
-      user: {},
-      chatRoomId: null,
-    }
+    this.defaultValues = this.defaultValues.bind(this)
+
+    this.state = this.defaultValues()
 
     this.logout = this.logout.bind(this)
+    this.handleChatRoomClicked = this.handleChatRoomClicked.bind(this)
     this.onAuthChange = this.onAuthChange.bind(this)
   }
 
@@ -37,9 +35,19 @@ class App extends Component {
     // }
 
   }
+  defaultValues() {
+    return {
+      chatHistory: [],
+      isAuthenticated: false,
+      jwtToken: false,
+      user: {},
+      chatRoomId: null,
+      chatRoomName: null,
+    }
+  }
   logout(event) {
-    event.preventDefault()
-    this.setState({ isAuthenticated: false, jwtToken: "", user: {} })
+    event?.preventDefault()
+    this.setState(this.defaultValues())
   }
   send(event) {
     if (event.keyCode === 13) {
@@ -51,13 +59,18 @@ class App extends Component {
   onAuthChange({ isAuthenticated, jwtToken, user }) {
     this.setState({ isAuthenticated, jwtToken, user })
   }
+  handleChatRoomClicked({ Name, ID }) {
+    this.setState({ chatRoomName: Name, chatRoomId: ID }, () => {
+      console.log(this.state)
+    })
+  }
 
   render() {
     let bodyContent
     if (this.state.isAuthenticated === false) {
       bodyContent = <Auth onAuthChange={this.onAuthChange} />
     } else if (this.state.isAuthenticated === true && this.state.chatRoomId === null) {
-      bodyContent = <div> New Chat or Select Chat</div>
+      bodyContent = <Menu handleChatRoomClicked={this.handleChatRoomClicked} logout={this.logout} jwtToken={this.state.jwtToken} />
     } else {
       bodyContent = (<div>
         <ChatHistory chatHistory={this.state.chatHistory} />
