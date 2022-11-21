@@ -1,23 +1,29 @@
-import React, { Component } from 'react';
-import './Message.scss';
+import React, { Component } from "react";
+import "./Message.scss";
 
 class Message extends Component {
   constructor(props) {
     super(props);
-    let temp = JSON.parse(this.props.message);
+    const { chatRoomName, chatRoomId, chatMessage, chatUser } =
+      this.props.message;
     this.state = {
-      message: temp
-    }
+      chatMessage,
+      chatRoomId,
+      chatRoomName,
+      chatUser,
+    };
   }
-  
+
   render() {
     return (
-      <div className='Message'>
-        {this.state.message.body}
+      <div className="Message">
+        <span className="text-decoration-underline">
+          {this.state.chatUser ?? "username"}
+        </span>{" "}
+        : {this.state.chatMessage}
       </div>
     );
-  };
-
+  }
 }
 
 export default Message;

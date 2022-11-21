@@ -1,7 +1,7 @@
 // api/index.js
-let websocket = (cb) => {
+let websocket = (newMessage, jwt) => {
   console.log("connecting")
-  var socket = new WebSocket('ws://localhost:9010/v1/ws');
+  var socket = new WebSocket(`ws://localhost:9010/v1/ws?jwt=${jwt}`);
 
   socket.onopen = () => {
     console.log("Successfully Connected");
@@ -9,7 +9,7 @@ let websocket = (cb) => {
 
   socket.onmessage = (msg) => {
     console.log("Message from WebSocket: ", msg);
-    cb(msg);
+    newMessage(msg);
   }
 
   socket.onclose = (event) => {
@@ -19,12 +19,7 @@ let websocket = (cb) => {
   socket.onerror = (error) => {
     console.log("Socket Error: ", error)
   }
-
-  let sendMsg = (msg) => {
-    console.log("sending msg: ", msg);
-    socket.send(msg);
-  };
-  return sendMsg
+  return socket
 };
 
 const baseUrl = "http://localhost:9010"
