@@ -11,7 +11,7 @@ import {
 } from "mdb-react-ui-kit";
 import "./Menu.scss";
 import axios from "axios";
-import { baseUrl } from "../../api";
+import { baseUrl, consoleLogger } from "../../api";
 
 class Menu extends Component {
   constructor(props) {
@@ -79,7 +79,7 @@ class Menu extends Component {
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      console.log(error);
+      consoleLogger(error);
       if (error.response.status === 401) {
         this.props.logout();
         alert("Session expired");

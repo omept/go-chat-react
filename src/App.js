@@ -3,9 +3,10 @@ import Header from './components/Header/Header';
 import ChatHistory from './components/ChatHistory/ChatHistory';
 import ChatInput from './components/ChatInput/ChatInput';
 import './App.css';
-import { websocket } from './api';
+import { baseUrl, consoleLogger, websocket } from './api';
 import Auth from './components/Auth/Auth';
 import Menu from './components/Menu/Menu';
+import axios from 'axios';
 
 class App extends Component {
   constructor(props) {
@@ -22,6 +23,7 @@ class App extends Component {
     this.initWebsocket = this.initWebsocket.bind(this)
     this.newMessage = this.newMessage.bind(this)
     this.sendMessage = this.sendMessage.bind(this)
+    this.preloadChatHistory = this.preloadChatHistory.bind(this)
   }
 
   defaultValues() {
@@ -59,7 +61,7 @@ class App extends Component {
   onAuthChange({ isAuthenticated, jwtToken, user }) {
     this.setState({ isAuthenticated, jwtToken, user }, () => {
       if (isAuthenticated === true) {
-        console.log("Logged in, setting up websocket")
+        consoleLogger("Logged in, setting up websocket")
         this.initWebsocket()
       }
     })
@@ -70,29 +72,58 @@ class App extends Component {
   }
 
   handleChatRoomClicked({ Name, ID }) {
-    this.setState({ chatRoomName: Name, chatRoomId: ID })
+    this.setState(prev => ({ chatRoomName: Name, chatRoomId: ID, chatHistory: [] }), () => {
+      this.preloadChatHistory(ID)
+    })
+  }
+
+  preloadChatHistory(ID) {
+    // fetch list of chat rooms
+    const apiUrl = `${baseUrl}/v1/api/chat/room-messages`;
+    axios
+      .post(apiUrl, { RoomId: ID }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.state.jwtToken}`,
+        }
+      },)
+      .then((repos) => {
+        const data = repos.data;
+        consoleLogger(data)
+        try {
+          this.setState(() => ({
+            chatHistory: [...data.Chats],
+          }));
+        } catch (error) {
+          consoleLogger(error)
+        }
+
+      })
+      .catch((error) => {
+        this.handleAxiosError(error);
+      });
   }
 
   newMessage(msgEvent) {
     try {
       const data = JSON.parse(msgEvent.data);
       const { chatRoomName, chatRoomId, chatMessage, chatUser } = data.Body
-      console.log("new message >> message event data: ", data)
+      consoleLogger("new message >> message event data: ", data)
       const nm = { chatRoomName, chatRoomId, chatMessage, chatUser }
       if (chatRoomId !== undefined) {
         this.setState(prev => ({ chatHistory: [...prev.chatHistory, nm] }))
         return
       }
     } catch (error) {
-      console.log("error >> newMessage: ", error)
+      consoleLogger("error >> newMessage: ", error)
     }
 
   }
 
   sendMessage(chatMessage) {
-    console.log("sendMessage called")
+    consoleLogger("sendMessage called")
     const { chatRoomName, chatRoomId, socket } = this.state
-    console.log(socket)
+    consoleLogger(socket)
     if (socket.readyState === 3) {
       alert("WebSocket is already in CLOSING or CLOSED state.")
       return
